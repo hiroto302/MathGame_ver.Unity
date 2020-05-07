@@ -47,6 +47,104 @@ public class Player : MonoBehaviour
             numCard.GetComponent<Card>().ShowNum(card[i]);
         }
     }
+    // 手札のカードを格納
+    GameObject[] cardObjects;
+    void GetCard()
+    {
+        cardObjects = GameObject.FindGameObjectsWithTag("Card");
+    }
+
+
+    // タップしたカードを場に移動させるメソッド
+    // Rayクラスの利用
+    float x, y, z;
+    GameObject tapCard;
+    bool rayHit = true;
+    public void TapCard()
+    {
+        float distance = 100; // 飛ばす&表示するRayの長さ
+        // float duration = 30;   // 表示期間（秒）
+        int layerMask = 1 << 8;  // cardのレイヤー設定
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if(Input.GetMouseButtonDown(0))
+        {
+            if(Physics.Raycast(ray, out hit, distance, layerMask))
+            {
+                // クリック中の y の高さ
+                y =  hit.collider.gameObject.transform.position.y + 0.1f;
+                // tapしたカード以外にrayが衝突しないようにする
+                tapCard = hit.collider.gameObject;
+                GetCard();
+                foreach(GameObject cardObject in cardObjects)
+                {
+                    cardObject.GetComponent<Collider>().enabled = false;
+                }
+            }
+            tapCard.GetComponent<Collider>().enabled= true;
+        }
+        // マウスをクリックし続けている時
+        if(Input.GetMouseButton(0))
+        {
+            // cardとrayが当たっている時
+            if(Physics.Raycast(ray, out hit, distance, layerMask))
+            {
+                x = hit.point.x;
+                z = hit.point.z;
+                // cardの位置を更新 xとzのみ変更
+                hit.collider.gameObject.transform.position = new Vector3(x, y, z);
+                rayHit = false;
+            }
+            // マウスをクリック中にrayが外れた時の処理
+            else if(rayHit == false)
+            {
+                Debug.Log("rayが外れたよ");
+                tapCard.GetComponent<Card>().ReturnPosition();
+                rayHit = true;
+            }
+        }
+        if(Input.GetMouseButtonUp(0))
+        {
+            if(Physics.Raycast(ray, out hit, distance, layerMask))
+            {
+                // y の位置を元に戻す
+                y = hit.collider.gameObject.transform.position.y - 0.1f;
+                hit.collider.gameObject.transform.position = new Vector3(x, y, z);
+            }
+            GetCard();
+            // colliderのリセット
+            foreach(GameObject cardObject in cardObjects)
+            {
+                cardObject.GetComponent<Collider>().enabled = true;
+            }
+            rayHit = true;
+        }
+    }
+    private Vector3 moveTo;
+
+    private bool beRay = false;
+    private void RayCheck()
+    {
+        Ray ray = new Ray();
+        RaycastHit hit = new RaycastHit();
+        ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray.origin, ray.direction, out hit, Mathf.Infinity) && hit.collider == gameObject.GetComponent<Collider>())
+        {
+            beRay = true;
+        }
+        else
+        {
+            beRay = false;
+        }
+    }
+    private void MovePoisition()
+    {
+        Vector3 mousePos = Input.mousePosition;
+        mousePos.z = 10;
+        moveTo = Camera.main.ScreenToWorldPoint(mousePos);
+        transform.position = moveTo;
+    }
 
     // 保持しているカードを場に出すメソッド
     // 場の値以上のカードのみ出すこが可能
@@ -106,7 +204,7 @@ public class Player : MonoBehaviour
             if(discard)
             {
             //変数のリセット
-            //場に出ている数以上　0入力 判定
+            //場に出ている数以上 0入力 判定
             if(n > GameMaster.fieldNum || n == 0 || (discard == true && sameNumbers.Find(i => i == n) * 2 > GameMaster.fieldNum))
             {
                 discard = false;
@@ -167,9 +265,9 @@ public class Player : MonoBehaviour
             // 同じ値がない時
             else
             {
-            card.Remove(n);
-            GameMaster.fieldCard.Add(n);
-            GameMaster.nextPlay = "cp";
+                card.Remove(n);
+                GameMaster.fieldCard.Add(n);
+                GameMaster.nextPlay = "cp";
             }
         }
         // 入力 0 skip
@@ -221,13 +319,24 @@ public class Player : MonoBehaviour
         }
     }
 
-    // void Start()
-    // {
+    void Start()
+    {
 
-    // }
+    }
 
-    // void Update()
-    // {
-        
-    // }
+    void Update()
+    {
+        TapCard();
+        // if (Input.GetMouseButtonDown(0)) {
+        //     RayCheck();
+        // }
+
+        // if (beRay) {
+        //     MovePoisition();
+        // }
+
+        // if (Input.GetMouseButtonUp(0)) {
+        //     beRay = false;
+        // }
+    }
 }
