@@ -8,19 +8,29 @@ using UnityEngine.UI;
 // 作成された数字に対応する数をカード表面に表示する
 public class Card : MonoBehaviour
 {
-    // 表示する数
-    int num;
+    // カードの値(数)
+    private int num;
+    public int Num
+    {
+        get{return num;}
+    }
+
     // カードの初期位置
     float x, y, z;
     Vector3 startPosition;
     // 移動中の中心座標
-    public Vector3 position;
-    // カードに対応する数を表示するメソッド
+    private Vector3 position;
+    public Vector3 Position
+    {
+        get{return position;}
+    }
+    // カードに対応する数を表示・値をセットするメソッド
     public void ShowNum(int num)
     {
+        this.num = num;
         GameObject canvas = transform.GetChild(0).gameObject;
         GameObject numText = canvas.transform.GetChild(0).gameObject;
-        numText.GetComponent<Text>().text = num.ToString();
+        numText.GetComponent<Text>().text = this.num.ToString();
     }
     // カードを初期位置に戻すメソッド
     public void ReturnPosition()

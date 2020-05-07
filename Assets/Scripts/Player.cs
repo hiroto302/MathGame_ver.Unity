@@ -14,6 +14,8 @@ public class Player : MonoBehaviour
     private string name;
     // 勝敗を分ける失点ポイント
     protected int point = 0;
+    // Tapして,選択しているカードの値
+    int selectNum;
     // 各プロパティ
     public string Name
     {
@@ -63,7 +65,6 @@ public class Player : MonoBehaviour
     public void TapCard()
     {
         float distance = 100; // 飛ばす&表示するRayの長さ
-        // float duration = 30;   // 表示期間（秒）
         int layerMask = 1 << 8;  // cardのレイヤー設定
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -74,7 +75,9 @@ public class Player : MonoBehaviour
                 // クリック中の y の高さ
                 y =  hit.collider.gameObject.transform.position.y + 0.1f;
                 // tapしたカード以外にrayが衝突しないようにする
+                // tapしたカードの値取得
                 tapCard = hit.collider.gameObject;
+                selectNum = tapCard.GetComponent<Card>().Num;
                 GetCard();
                 foreach(GameObject cardObject in cardObjects)
                 {
@@ -98,7 +101,6 @@ public class Player : MonoBehaviour
             // マウスをクリック中にrayが外れた時の処理
             else if(rayHit == false)
             {
-                Debug.Log("rayが外れたよ");
                 tapCard.GetComponent<Card>().ReturnPosition();
                 rayHit = true;
             }
@@ -120,32 +122,6 @@ public class Player : MonoBehaviour
             rayHit = true;
         }
     }
-    private Vector3 moveTo;
-
-    private bool beRay = false;
-    private void RayCheck()
-    {
-        Ray ray = new Ray();
-        RaycastHit hit = new RaycastHit();
-        ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        if (Physics.Raycast(ray.origin, ray.direction, out hit, Mathf.Infinity) && hit.collider == gameObject.GetComponent<Collider>())
-        {
-            beRay = true;
-        }
-        else
-        {
-            beRay = false;
-        }
-    }
-    private void MovePoisition()
-    {
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z = 10;
-        moveTo = Camera.main.ScreenToWorldPoint(mousePos);
-        transform.position = moveTo;
-    }
-
     // 保持しているカードを場に出すメソッド
     // 場の値以上のカードのみ出すこが可能
     // 出したカードを手持ちから削除し、場に表示する
@@ -161,6 +137,11 @@ public class Player : MonoBehaviour
     // int sameNum = 0;
     int yesOrNo;
     public virtual void DiscardCard()
+    {
+        // 場にだす数の選択
+        // tapカードの値を取得
+    }
+    public virtual void DDiscardCard()
     {
         List<int> sameNumbers = new List<int>(); // 同じ値の数値を格納
 

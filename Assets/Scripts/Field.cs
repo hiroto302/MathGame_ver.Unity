@@ -37,7 +37,7 @@ public class Field : MonoBehaviour
         foreach(var card in cards)
         {
             cardScript = card.GetComponent<Card>();
-            cardPosition = cardScript.position;
+            cardPosition = cardScript.Position;
             dir = fieldPosition - cardPosition;
             d = dir.magnitude;
             // Debug.Log(d);
