@@ -309,8 +309,13 @@ public class GameMaster : MonoBehaviour
         MakeCard(10);
         // カードの配布
         DistributeCard(player, cp, GameMaster.number);
-        // プレイヤー札表示
+        // プレイヤー・PCのカード表示
         player.ShowCard();
+        cp.ShowCard();
+        cp.DiscardCard();
+        // cp.ShowCard();
+        turn = 1;
+        //
     }
     void Update()
     {

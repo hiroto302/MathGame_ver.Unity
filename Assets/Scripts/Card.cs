@@ -24,7 +24,9 @@ public class Card : MonoBehaviour
     {
         get{return position;}
     }
-    // カードに対応する数を表示・値をセットするメソッド
+    // カードとFieldの距離
+    public float distance;
+    // カードに対応する数を表示・値をセットするメソッド(Player)
     public void ShowNum(int num)
     {
         this.num = num;
@@ -32,6 +34,15 @@ public class Card : MonoBehaviour
         GameObject numText = canvas.transform.GetChild(0).gameObject;
         numText.GetComponent<Text>().text = this.num.ToString();
     }
+    // カードの値を非表示にし、値をセットするメソッド(PC)
+    public void NoShowNum(int num)
+    {
+        this.num = num;
+        GameObject canvas = transform.GetChild(0).gameObject;
+        GameObject numText = canvas.transform.GetChild(0).gameObject;
+        numText.GetComponent<Text>().text = "?";
+    }
+
     // カードを初期位置に戻すメソッド
     public void ReturnPosition()
     {

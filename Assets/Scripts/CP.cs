@@ -13,6 +13,16 @@ public class CP : Player
     // 保持するカードの表示
     public override void ShowCard()
     {
+        for(int i = 0; i < card.Count; i++)
+        {
+            GameObject numCard = Instantiate(Card, new Vector3(-2.0f + i * 0.8f, 0.3f, 1.3f), Quaternion.identity) as GameObject;
+            numCard.transform.Rotate(new Vector3(0, 1, 0), 180);
+            numCard.tag = "CPCard";
+            // PlayerがCPの手札を操作出来ないようにcolliderを非アクティブ化
+            numCard.GetComponent<Collider>().enabled = false;
+            // numCard.GetComponent<Card>().NoShowNum(card[i]);
+            numCard.GetComponent<Card>().ShowNum(card[i]);
+        }
     //   Console.WriteLine("{0}のカード", Name);
     //   for(int i = 0; i < card.Count; i++)
     //   {
@@ -39,6 +49,80 @@ public class CP : Player
 
     // CPが保持しているカードを出すメソッド
     public override void DiscardCard()
+    {
+        // 場に出すカード選択
+        int n = 0;
+        int num = 0;
+        bool discard = false;
+        // 場に出す以上の数が手札にあるか
+        int m = 0;
+        while(m < card.Count)
+        {
+            if(card[m] > Field.fieldNum)
+            {
+                discard = true;
+                break;
+            }
+            else if(card[m] <= Field.fieldNum)
+            {
+                m++;
+            }
+        }
+        // 場に出せる数がある時
+        if(discard == true)
+        {
+            while(true)
+            {
+                n = Random.Range(0, card.Count);
+                num = card.Find(i => i == card[n]);
+            // 選択した数がsameNumbersに含まれる数が
+            // if(sameNumbers.Contains(num))
+            // {
+            //     sameNumber = true;
+            // }
+            // // sameNumbersの時、1枚のみでも場に出せる時、1枚のみ or 2枚 同時に出すか 判定処理
+            // if(sameNumber == true && num > GameMaster.fieldNum)
+            // {
+            //     yesOrNo = Random.Range(0, 1);
+            //     // 同時に出す
+            //     if(yesOrNo == 0)
+            //     {
+            //         DiscardNum(2, num);
+            //         GameMaster.nextPlay = "player";
+            //         break;
+            //     }
+            //     // 1枚のみ出す
+            //     else if(yesOrNo == 1)
+            //     {
+            //         DiscardNum(1, num);
+            //         GameMaster.nextPlay = "player";
+            //         break;
+            //     }
+            // }
+            // sameNumbersの時、2枚同時に出せば場に出すことが出来る時の判定処理
+            // else if(sameNumber == true && num * 2 > GameMaster.fieldNum)
+            // {
+            //     DiscardNum(2, num);
+            //     GameMaster.nextPlay = "player";
+            //     break;
+            // }
+            // radomに選択した数が場の数以上のカードを選択した時
+                if(num > Field.fieldNum)
+                {
+                    DiscardNum(1, num);
+                    GameMaster.nextPlay = "player";
+                    break;
+                }
+            }
+        }
+        // 場に出せる数が無い時
+        else if(discard == false)
+        {
+            // Console.WriteLine("{0}は場に出すことが出来なかった", Name);
+            GameMaster.nextPlay = "cpRestart";
+        }
+    }
+    public override void DDiscardCard()
     {
         // 場に出すカード選択
         int n = 0;
@@ -150,6 +234,7 @@ public class CP : Player
         else if(discard == false)
         {
             // Console.WriteLine("{0}は場に出すことが出来なかった", Name);
+            Debug.Log("場に出すことが出来なかった");
             GameMaster.nextPlay = "cpRestart";
         }
     }
@@ -166,10 +251,11 @@ public class CP : Player
             // Console.WriteLine("{0}が選択した数を同時に出した : {1}, {2}", Name, num, num);
             break;
         }
+            Debug.Log("cpが選択した数 : " + num);
         for(int i = 0; i < n; i++)
         {
             card.Remove(num);
-            GameMaster.fieldCard.Add(num);
+            Field.fieldCard.Add(num);
         }
     }
 

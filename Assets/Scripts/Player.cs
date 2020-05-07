@@ -6,6 +6,8 @@ public class Player : MonoBehaviour
 {
     // CardのPrefab
     public GameObject Card;
+
+    // Player変数
     // プレイヤーが保持するカード, 手札
     public List<int> card;
     // フィールドに各手札のカードを表示する位置の親
@@ -29,6 +31,10 @@ public class Player : MonoBehaviour
         get{return point;}
     }
 
+    // Filedクラスの変数
+    GameObject fieldObject;
+    Field field;
+
     // コンストラクタ
     public Player() : this("player")
     {
@@ -46,22 +52,24 @@ public class Player : MonoBehaviour
         for(int i = 0; i < card.Count; i++)
         {
             GameObject numCard = Instantiate(Card, new Vector3( -2.0f + i * 0.8f, 0.3f, -1.3f), Quaternion.identity) as GameObject;
+            // tag を PlayerCardとして生成
+            numCard.tag = "PlayerCard";
             numCard.GetComponent<Card>().ShowNum(card[i]);
         }
     }
-    // 手札のカードを格納
+    // 手札のカードを格納・取得
     GameObject[] cardObjects;
     void GetCard()
     {
-        cardObjects = GameObject.FindGameObjectsWithTag("Card");
+        cardObjects = GameObject.FindGameObjectsWithTag("PlayerCard");
     }
 
 
     // タップしたカードを場に移動させるメソッド
-    // Rayクラスの利用
     float x, y, z;
     GameObject tapCard;
     bool rayHit = true;
+
     public void TapCard()
     {
         float distance = 100; // 飛ばす&表示するRayの長さ
@@ -107,12 +115,23 @@ public class Player : MonoBehaviour
         }
         if(Input.GetMouseButtonUp(0))
         {
+            // if(Physics.Raycast(ray, out hit, distance, layerMask) && Field.Distance < 0.8f)
             if(Physics.Raycast(ray, out hit, distance, layerMask))
             {
-                // y の位置を元に戻す
-                y = hit.collider.gameObject.transform.position.y - 0.1f;
-                hit.collider.gameObject.transform.position = new Vector3(x, y, z);
-            }
+                // tapしたカードをフィールドに移動し、場に出す判定
+                if(hit.collider.gameObject.GetComponent<Card>().distance < 0.8f
+                    && hit.collider.gameObject.GetComponent<Card>().Num > Field.fieldNum)
+                {
+                    DiscardCard();
+                    Destroy(hit.collider.gameObject);
+                }
+                else
+                {
+                    // y の位置を元に戻す
+                    y = hit.collider.gameObject.transform.position.y - 0.1f;
+                    hit.collider.gameObject.transform.position = new Vector3(x, y, z);
+                }
+                }
             GetCard();
             // colliderのリセット
             foreach(GameObject cardObject in cardObjects)
@@ -139,7 +158,16 @@ public class Player : MonoBehaviour
     public virtual void DiscardCard()
     {
         // 場にだす数の選択
-        // tapカードの値を取得
+        // tapカードの値 selectNum
+        if(Field.fieldNum < selectNum)
+        {
+            // 場の数以上のカードを選択し、場に出した時、そのカードを場に追加する。
+            card.Remove(selectNum);
+            Field.fieldCard.Add(selectNum);
+            GameMaster.fieldCard.Add(selectNum);
+            GameMaster.nextPlay = "cp";
+            // 場の値を更新し、場に出した数をPlayerカードから破棄する
+        }
     }
     public virtual void DDiscardCard()
     {
@@ -271,16 +299,19 @@ public class Player : MonoBehaviour
             // 手札が6枚になるまで山札から引く
             while(card.Count < 6)
             {
-            if(number.Count == 0)
-            {
-                break;
-            }
-            int r = Random.Range(0, number.Count);  // 0~引数未満の数を生成
-            card.Add(number[r]);
-            //   Console.WriteLine(number[r] + "をドローした");
-            number.RemoveAt(r);
+                // 山札numberから引いている途中に山札が0になった時
+                if(number.Count == 0)
+                {
+                    break;
+                }
+                int r = Random.Range(0, number.Count);  // 0~引数未満の数を生成
+                card.Add(number[r]);
+                //   Console.WriteLine(number[r] + "をドローした");
+                number.RemoveAt(r);
             }
         }
+        // ドローしたらplayerのターン終了
+        playerTurn = false;
     }
     // 場に出すことが出来なかった時の処理 場が保持するカードの枚数分失点に追加
     public virtual void AddPoint(int n)
@@ -300,24 +331,22 @@ public class Player : MonoBehaviour
         }
     }
 
+    void Awake()
+    {
+        fieldObject = GameObject.Find("Field");
+        field = fieldObject.GetComponent<Field>();
+    }
     void Start()
     {
-
+        playerTurn = true;
     }
 
+    public bool playerTurn;
     void Update()
     {
+        Debug.Log(playerTurn);
+        if(playerTurn == false) return;
         TapCard();
-        // if (Input.GetMouseButtonDown(0)) {
-        //     RayCheck();
-        // }
-
-        // if (beRay) {
-        //     MovePoisition();
-        // }
-
-        // if (Input.GetMouseButtonUp(0)) {
-        //     beRay = false;
-        // }
+        Draw(GameMaster.number);
     }
 }
