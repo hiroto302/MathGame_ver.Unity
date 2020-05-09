@@ -211,7 +211,7 @@ public class GameMaster : MonoBehaviour
                 cp.Draw(number);
                 turn = 3;
                 break;
-            // フィールドと手札の更新 と　その後の処理
+            // フィールドと手札の更新 と その後の処理
             case 3:
                 // ゲーム終了判定
                 // どちらかの手札が0枚になった時点でゲーム終了
@@ -314,11 +314,11 @@ public class GameMaster : MonoBehaviour
         cp.ShowCard();
         cp.DiscardCard();
         // cp.ShowCard();
-        turn = 1;
+        // turn = 1;
         //
     }
     void Update()
     {
-        
+
     }
 }

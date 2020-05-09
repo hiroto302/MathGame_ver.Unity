@@ -65,7 +65,7 @@ public class Field : MonoBehaviour
             dir = fieldPosition - cardPosition;
             cardScript.distance = dir.magnitude;
         }
-
+        
         // fieldNumの表示
         ShowFieldNum();
     }

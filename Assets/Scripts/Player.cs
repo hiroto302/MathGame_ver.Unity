@@ -58,8 +58,8 @@ public class Player : MonoBehaviour
         }
     }
     // 手札のカードを格納・取得
-    GameObject[] cardObjects;
-    void GetCard()
+    protected GameObject[] cardObjects;
+    public virtual void GetCard()
     {
         cardObjects = GameObject.FindGameObjectsWithTag("PlayerCard");
     }
@@ -166,9 +166,11 @@ public class Player : MonoBehaviour
             Field.fieldCard.Add(selectNum);
             GameMaster.fieldCard.Add(selectNum);
             GameMaster.nextPlay = "cp";
-            // 場の値を更新し、場に出した数をPlayerカードから破棄する
+            // 手札を出すことが出来たら山札からカードを引く
+            turn = 2;
         }
     }
+    
     public virtual void DDiscardCard()
     {
         List<int> sameNumbers = new List<int>(); // 同じ値の数値を格納
@@ -310,8 +312,23 @@ public class Player : MonoBehaviour
                 number.RemoveAt(r);
             }
         }
-        // ドローしたらplayerのターン終了
+        // ドローしたら手札の表示更新
+        turn = 3;
+    }
+    // 手札の更新
+    public void UpdateHand()
+    {
+        // 現在場にあるカードを削除
+        GetCard();
+        foreach(Object cardObject in cardObjects)
+        {
+            Destroy(cardObject);
+        }
+        // ドローして更新した手札を表示
+        ShowCard();
+        // ターンの終了
         playerTurn = false;
+        turn = 1;
     }
     // 場に出すことが出来なかった時の処理 場が保持するカードの枚数分失点に追加
     public virtual void AddPoint(int n)
@@ -336,17 +353,38 @@ public class Player : MonoBehaviour
         fieldObject = GameObject.Find("Field");
         field = fieldObject.GetComponent<Field>();
     }
-    void Start()
+    public virtual void Start()
     {
         playerTurn = true;
     }
 
     public bool playerTurn;
-    void Update()
+    protected int turn = 1;
+    public virtual void Update()
     {
-        Debug.Log(playerTurn);
-        if(playerTurn == false) return;
-        TapCard();
-        Draw(GameMaster.number);
+        // Debug.Log(playerTurn + " : playerTurn");
+        // Debug.Log(turn + ": plyer turn");
+        if(playerTurn == false)
+        {
+            return;
+        }
+        else
+        {
+            switch(turn)
+            {
+                // 手札から場に出す
+                case 1:
+                    TapCard();
+                    break;
+                // 山札からカードを引く
+                case 2:
+                    Draw(GameMaster.number);
+                    break;
+                // 手札を更新
+                case 3:
+                    UpdateHand();
+                    break;
+            }
+        }
     }
 }

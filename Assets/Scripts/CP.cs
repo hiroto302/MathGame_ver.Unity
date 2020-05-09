@@ -5,6 +5,8 @@ using UnityEngine;
 // CPクラス Playerクラスの操作と同等のことを自動で判断することができるCPプレイヤー
 public class CP : Player
 {
+    // 選択したカード
+    GameObject selectCard;
     public CP() : base("相手")
     {
       // コンストラクタ CPのnameを、相手とする
@@ -31,20 +33,18 @@ public class CP : Player
     //   }
     //   Console.WriteLine();
     }
-    // CPが処理を実行にかける時間
-    public void ThinkingTime(int second)
+    // CPが処理を実行にかける時間 引数に次に移行したい処理のturnを入力
+    public void ThinkingTime(int turn)
     {
-    //   // 思考時間 ３秒 (３秒間sleepにするか時間を計測する方法)
-    //   // Thread.Sleep(3000);
-    // //   Console.WriteLine("{0}が思考中....", Name);
-    //   stopWatch.Start();
-    //   TimeSpan ts = stopWatch.Elapsed;
-    //   while(ts.Seconds < second)
-    //   {
-    //     ts  = stopWatch.Elapsed;
-    //   }
-    //   stopWatch.Stop();
-    //   stopWatch.Reset();
+        float thinkingTime = 0;
+        float elapsedTime = 1.0f;
+        while(elapsedTime < thinkingTime)
+        {
+            thinkingTime += Time.deltaTime;
+            break;
+        }
+        this.turn = turn;
+        thinkingTime = 0;
     }
 
     // CPが保持しているカードを出すメソッド
@@ -114,12 +114,14 @@ public class CP : Player
                     break;
                 }
             }
+            turn = 3;
         }
         // 場に出せる数が無い時
         else if(discard == false)
         {
             // Console.WriteLine("{0}は場に出すことが出来なかった", Name);
             GameMaster.nextPlay = "cpRestart";
+            turn = 3;
         }
     }
     public override void DDiscardCard()
@@ -240,6 +242,7 @@ public class CP : Player
     }
 
     // 場に出すカードの数 手札から出した数(第二引数)を場が保持するカードに加えるメソッド
+    // 手札から削除したカードを場のカードオブジェクトからも破棄する
     public void DiscardNum(int n, int num)
     {
         switch(n)
@@ -251,15 +254,43 @@ public class CP : Player
             // Console.WriteLine("{0}が選択した数を同時に出した : {1}, {2}", Name, num, num);
             break;
         }
-            Debug.Log("cpが選択した数 : " + num);
+        Debug.Log("cpが選択した数 : " + num);
         for(int i = 0; i < n; i++)
         {
             card.Remove(num);
             Field.fieldCard.Add(num);
+            DestroyDiscardNum(n, num);
         }
     }
+    // 選択したカードを破棄 (破棄する枚数, 破棄するカードの値)
+    public void DestroyDiscardNum(int n, int num)
+    {
+        int count = 0;
+        int i = 0;
+        GetCard();
+        while( count < n)
+        {
+            // ゲームオブジェクトを破棄した時、cardObjectに格納されている個数は変わらない。インデックスの数がずれない
+            if(num == cardObjects[i].GetComponent<Card>().Num)
+            {
+                Destroy(cardObjects[i]);
+                count++;
+            }
+            i++;
+        }
+        count = 0;
+        i = 0;
+    }
 
-    // Draw と AddPoint メソッドなどのPlayerクラスとメソッドの処理内容が同じの時、記述は消すこと
+    // 場に出ているCPカードを取得
+    public override void GetCard()
+    {
+        cardObjects = GameObject.FindGameObjectsWithTag("CPCard");
+    }
+
+
+
+    // Draw と AddPoint メソッドなどのPlayerクラスとメソッドの処理内容が同じ時、記述は消すこと
     public override void Draw(List<int> number)
     {
         // 手札が６枚でない時、かつ、山札にカードが残っている時下記の処理を実行
@@ -284,5 +315,38 @@ public class CP : Player
     {
         point += n;
     //   Console.WriteLine("{0}現在の失点 : {1}", Name, point);
+    }
+    public bool cpTurn;
+
+    public override void Start()
+    {
+        cpTurn = false;
+        turn = 2;
+    }
+    public override void Update()
+    {
+        if(cpTurn == false)
+        {
+            return;
+        }
+        else
+        {
+            switch(turn)
+            {
+                // 手札から場に出す
+                case 1:
+                    ThinkingTime(2);
+                    DiscardCard();
+                    break;
+                // カードを引く
+                case 2:
+                    ThinkingTime(3);
+                    Draw(GameMaster.number);
+                    break;
+                // 手札の表示を更新する
+                case 3:
+                    break;
+            }
+        }
     }
 }
