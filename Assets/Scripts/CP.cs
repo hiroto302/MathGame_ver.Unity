@@ -282,13 +282,22 @@ public class CP : Player
         i = 0;
     }
 
+    public override void UpdateHand()
+    {
+        GetCard();
+        foreach(Object cardObject in cardObjects)
+        {
+            Destroy(cardObject);
+        }
+        ShowCard();
+        cpTurn = false;
+    }
+
     // 場に出ているCPカードを取得
     public override void GetCard()
     {
         cardObjects = GameObject.FindGameObjectsWithTag("CPCard");
     }
-
-
 
     // Draw と AddPoint メソッドなどのPlayerクラスとメソッドの処理内容が同じ時、記述は消すこと
     public override void Draw(List<int> number)
@@ -345,6 +354,8 @@ public class CP : Player
                     break;
                 // 手札の表示を更新する
                 case 3:
+                    ThinkingTime(1);
+                    UpdateHand();
                     break;
             }
         }

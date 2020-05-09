@@ -316,7 +316,7 @@ public class Player : MonoBehaviour
         turn = 3;
     }
     // 手札の更新
-    public void UpdateHand()
+    public virtual void UpdateHand()
     {
         // 現在場にあるカードを削除
         GetCard();
@@ -383,6 +383,7 @@ public class Player : MonoBehaviour
                 // 手札を更新
                 case 3:
                     UpdateHand();
+                    GameMaster.nextTurn = 3;
                     break;
             }
         }

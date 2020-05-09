@@ -55,7 +55,7 @@ public class Field : MonoBehaviour
     void Update()
     {
         // 場に出ているCardオブジェクトを取得
-        GameObject[] cards = GameObject.FindGameObjectsWithTag("Card");
+        GameObject[] cards = GameObject.FindGameObjectsWithTag("PlayerCard");
         // Cardの中心座標取得し,Fieldとの距離を計測
         // 各カードの距離を管理したいため、カードとの距離の変数を持たせる
         foreach(var card in cards)
@@ -65,7 +65,7 @@ public class Field : MonoBehaviour
             dir = fieldPosition - cardPosition;
             cardScript.distance = dir.magnitude;
         }
-        
+
         // fieldNumの表示
         ShowFieldNum();
     }

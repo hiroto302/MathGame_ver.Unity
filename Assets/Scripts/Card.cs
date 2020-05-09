@@ -67,6 +67,7 @@ public class Card : MonoBehaviour
 
     void Update()
     {
+        Debug.Log(distance);
         NoField();
         // 中心座標の取得
         position = transform.position;

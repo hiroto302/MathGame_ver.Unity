@@ -271,6 +271,12 @@ public class GameMaster : MonoBehaviour
         Reset(player, cp);
     }
 
+    // 次のplay処理判断の文字を代入するメソッド
+    public void NextPlay(string next)
+    {
+        nextPlay = next;
+    }
+
     // ゲームの状態をリセット 繰り返し遊べる仕様
     public void Reset(Player player1, CP cp)
     {
@@ -303,6 +309,7 @@ public class GameMaster : MonoBehaviour
 
     // 各メソッドをUnity で 実行できるように作成し、最後につなぎ合わせる
     // ゲーム実行するための処理
+    public static int nextTurn = 0;
     void Start()
     {
         // カードの生成
@@ -310,9 +317,73 @@ public class GameMaster : MonoBehaviour
         // カードの配布
         DistributeCard(player, cp, GameMaster.number);
         // プレイヤー・PCのカード表示
-        player.ShowCard();
-        cp.ShowCard();
-        cp.DiscardCard();
+        playGame = true;
+        // while(playGame)
+        // {
+        //     switch(nextTurn)
+        //     {
+        //         // 画面の初期表示
+        //         case 0:
+                    player.ShowCard();
+                    cp.ShowCard();
+        //             nextTurn = 1;
+        //             break;
+        //         // Playerのターン
+        //         case 1:
+        //             TurnName(player);
+        //             player.playerTurn = true;
+        //             break;
+        //         case 2:
+        //         // CPのターン
+        //             TurnName(cp);
+        //             cp.cpTurn = true;
+        //             break;
+        //         case 3:
+        //             // ゲームの終了判定 どちらかの手札が0枚になったら終了
+        //             if(player.card.Count == 0 || cp.card.Count == 0)
+        //             {
+        //                 nextPlay = "finish";
+        //             }
+        //             // 条件分岐でどのplayerがプレーするか判断
+        //             if(nextPlay.Equals("player"))
+        //             {
+        //                 nextTurn = 1;
+        //             }
+        //             else if(nextPlay.Equals("cp"))
+        //             {
+        //                 nextTurn = 2;
+        //             }
+        //             else if(nextPlay.Equals("playerRestart")) // プレイヤーが場に出さないことを選択した時の処理
+        //             {
+        //                 if(fieldCard.Count > 0)
+        //                 {
+        //                     player.AddPoint(fieldCard.Count);
+        //                 }
+        //                 FieldReset();
+        //                 turn = 1; // 再び自分のターン
+        //             }
+        //             else if(nextPlay.Equals("cpRestart"))     // CPが場に出さないこと選択した時の処理
+        //             {
+        //                 if(fieldCard.Count > 0)
+        //                 {
+        //                     cp.AddPoint(fieldCard.Count);
+        //                 }
+        //                 FieldReset();
+        //                 turn = 2; // 再び相手のターン
+        //             }
+        //             else if(nextPlay.Equals("finish"))
+        //             {
+        //                 turn = 4;
+        //             }
+        //             break;
+        //         case 4:
+        //             FinishGame();
+        //             break;
+        //     }
+        // }
+        // cp.DiscardCard();
+        // cp.Draw(number);
+        // cp.UpdateHand();
         // cp.ShowCard();
         // turn = 1;
         //
