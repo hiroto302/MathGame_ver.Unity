@@ -27,16 +27,27 @@ public class Field : MonoBehaviour
     // 場の数の表示
     public void ShowFieldNum()
     {
+        GameObject canvas = transform.GetChild(0).gameObject;
+        GameObject topNumText = canvas.transform.GetChild(0).gameObject;
         if(fieldCard.Count > 0)
         {
             int topNum = fieldCard.Count;
             fieldNum = fieldCard[topNum - 1];
-            GameObject canvas = transform.GetChild(0).gameObject;
-            GameObject topNumText = canvas.transform.GetChild(0).gameObject;
+            topNumText.GetComponent<Text>().text = fieldNum.ToString();
+        }
+        else
+        {
             topNumText.GetComponent<Text>().text = fieldNum.ToString();
         }
     }
 
+    // フィールドのリセット playerが出すことが出来ない時など呼ばれる
+    public void Reset()
+    {
+        fieldCard.Clear();
+        fieldNum = 0;
+        Debug.Log("リセットされたよ");
+    }
 
     void Awake()
     {

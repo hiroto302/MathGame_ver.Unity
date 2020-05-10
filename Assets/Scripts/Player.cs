@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
     // プレイヤ-の名前 Playerクラスを継承するクラスでも共通の値
     private string name;
     // 勝敗を分ける失点ポイント
-    protected int point = 0;
+    public static int point = 0;
     // Tapして,選択しているカードの値
     int selectNum;
     // 各プロパティ
@@ -91,8 +91,8 @@ public class Player : MonoBehaviour
                 {
                     cardObject.GetComponent<Collider>().enabled = false;
                 }
+                tapCard.GetComponent<Collider>().enabled= true;
             }
-            tapCard.GetComponent<Collider>().enabled= true;
         }
         // マウスをクリックし続けている時
         if(Input.GetMouseButton(0))
@@ -329,12 +329,13 @@ public class Player : MonoBehaviour
         // ターンの終了
         playerTurn = false;
         turn = 1;
+        GameMaster.nextTurn = 2;
     }
     // 場に出すことが出来なかった時の処理 場が保持するカードの枚数分失点に追加
     public virtual void AddPoint(int n)
     {
         // Console.WriteLine("場に出すことが出来ないので{0}失点が追加されました", GameMaster.fieldCard.Count);
-        // point += n;
+        point += n;
         // Console.WriteLine("現在の失点 : {0}", point);
     }
 
@@ -358,12 +359,10 @@ public class Player : MonoBehaviour
         playerTurn = true;
     }
 
-    public bool playerTurn;
+    public static bool playerTurn;
     protected int turn = 1;
     public virtual void Update()
     {
-        // Debug.Log(playerTurn + " : playerTurn");
-        // Debug.Log(turn + ": plyer turn");
         if(playerTurn == false)
         {
             return;
@@ -378,14 +377,32 @@ public class Player : MonoBehaviour
                     break;
                 // 山札からカードを引く
                 case 2:
+                    // 場にカードを出すことが出来たらドローする
                     Draw(GameMaster.number);
                     break;
                 // 手札を更新
                 case 3:
                     UpdateHand();
-                    GameMaster.nextTurn = 3;
+                    CP.cpTurn = true;
+                    // GameMaster.nextTurn = 3;
+                    // GameMaster.playGame = true;
                     break;
             }
+        }
+    }
+    // 手札からカードを出すことが出来なかった時の処理
+    public virtual void NoDiscard()
+    {
+        // playerのターン時のみ実行可
+        if(playerTurn == true)
+        {
+            // 場が保持している数を失点に追加
+            if(Field.fieldCard.Count > 0)
+            {
+                AddPoint(Field.fieldCard.Count);
+            }
+            // フィールドの状態をリセット
+            field.Reset();
         }
     }
 }

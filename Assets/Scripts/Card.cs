@@ -47,7 +47,6 @@ public class Card : MonoBehaviour
     public void ReturnPosition()
     {
         transform.position = startPosition;
-        Debug.Log("retrunposition呼ばれたよ");
     }
     // カードを移動させとき、フィールドの位置に置かれなければ元の位置に戻すメソッド
     public void NoField()
@@ -67,7 +66,6 @@ public class Card : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(distance);
         NoField();
         // 中心座標の取得
         position = transform.position;

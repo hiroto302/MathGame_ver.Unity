@@ -25,26 +25,27 @@ public class CP : Player
             // numCard.GetComponent<Card>().NoShowNum(card[i]);
             numCard.GetComponent<Card>().ShowNum(card[i]);
         }
-    //   Console.WriteLine("{0}のカード", Name);
-    //   for(int i = 0; i < card.Count; i++)
-    //   {
-    //     Console.Write("|?|" + " ");
-    //     // Console.Write("|{0}| ",card[i]);
-    //   }
-    //   Console.WriteLine();
     }
     // CPが処理を実行にかける時間 引数に次に移行したい処理のturnを入力
+    float elapsedTime;
+    bool start = true;
     public void ThinkingTime(int turn)
     {
-        float thinkingTime = 0;
-        float elapsedTime = 1.0f;
-        while(elapsedTime < thinkingTime)
-        {
-            thinkingTime += Time.deltaTime;
-            break;
-        }
+        // if(start)
+        // {
+        //     elapsedTime = 0;
+        //     start = false;
+        // }
+        // while(true)
+        // {
+        //     if(elapsedTime > 5.0f)
+        //     {
+        //         break;
+        //     }
+        //     // Debug.Log(elapsedTime + " : elapsedTime");
+        // }
         this.turn = turn;
-        thinkingTime = 0;
+        // start =true;
     }
 
     // CPが保持しているカードを出すメソッド
@@ -114,14 +115,12 @@ public class CP : Player
                     break;
                 }
             }
-            turn = 3;
         }
         // 場に出せる数が無い時
         else if(discard == false)
         {
             // Console.WriteLine("{0}は場に出すことが出来なかった", Name);
             GameMaster.nextPlay = "cpRestart";
-            turn = 3;
         }
     }
     public override void DDiscardCard()
@@ -290,7 +289,8 @@ public class CP : Player
             Destroy(cardObject);
         }
         ShowCard();
-        cpTurn = false;
+        // UpdateHandが完了後相手のターンに変わる
+        Player.playerTurn = true;
     }
 
     // 場に出ているCPカードを取得
@@ -309,15 +309,20 @@ public class CP : Player
             // 手札が6枚になるまで山札から引く
             while(card.Count < 6)
             {
-            if(number.Count ==0)
-            {
-                break;
-            }
-            int r = Random.Range(0, number.Count);
-            card.Add(number[r]);
-            number.RemoveAt(r);
+                if(number.Count ==0)
+                {
+                    break;
+                }
+                int r = Random.Range(0, number.Count);
+                card.Add(number[r]);
+                Debug.Log(number[r] + "を引いた");
+                number.RemoveAt(r);
             }
         }
+    }
+    public void Draw()
+    {
+        Draw(GameMaster.number);
     }
 
     public override void AddPoint(int n)
@@ -325,39 +330,40 @@ public class CP : Player
         point += n;
     //   Console.WriteLine("{0}現在の失点 : {1}", Name, point);
     }
-    public bool cpTurn;
+    public static bool cpTurn;
 
     public override void Start()
     {
         cpTurn = false;
-        turn = 2;
+        turn = 1;
     }
     public override void Update()
     {
+        elapsedTime += Time.deltaTime;
         if(cpTurn == false)
         {
             return;
         }
-        else
+        switch(turn)
         {
-            switch(turn)
-            {
-                // 手札から場に出す
-                case 1:
-                    ThinkingTime(2);
-                    DiscardCard();
-                    break;
-                // カードを引く
-                case 2:
-                    ThinkingTime(3);
-                    Draw(GameMaster.number);
-                    break;
-                // 手札の表示を更新する
-                case 3:
-                    ThinkingTime(1);
-                    UpdateHand();
-                    break;
-            }
+            // 手札から場に出す
+            case 1:
+                Invoke("DiscardCard", 2.0f);
+                Debug.Log("case1");
+                ThinkingTime(2);
+                break;
+            // カードを引く
+            case 2:
+                Invoke("Draw", 2.5f);
+                ThinkingTime(3);
+                break;
+            // 手札の表示を更新する
+            case 3:
+                Invoke("UpdateHand", 4.5f);
+                cpTurn = false;
+                ThinkingTime(1);
+                break;
         }
+
     }
 }
