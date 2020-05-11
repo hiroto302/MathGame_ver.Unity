@@ -62,6 +62,7 @@ public class CP : Player
             if(card[m] > Field.fieldNum)
             {
                 discard = true;
+                noDiscard = false;
                 break;
             }
             else if(card[m] <= Field.fieldNum)
@@ -121,8 +122,23 @@ public class CP : Player
         {
             // Console.WriteLine("{0}は場に出すことが出来なかった", Name);
             GameMaster.nextPlay = "cpRestart";
+            Debug.Log("相手は場に出すことが出来なかった");
+            noDiscard = true;
         }
     }
+    public override void NoDiscard()
+    {
+        if(noDiscard)
+        {
+            if(Field.fieldCard.Count > 0)
+            {
+                AddPoint(Field.fieldCard.Count);
+            }
+            field.Reset();
+            cpTurn = true;
+        }
+    }
+
     public override void DDiscardCard()
     {
         // 場に出すカード選択
@@ -283,14 +299,17 @@ public class CP : Player
 
     public override void UpdateHand()
     {
-        GetCard();
-        foreach(Object cardObject in cardObjects)
+        if(noDiscard != true)
         {
-            Destroy(cardObject);
+            GetCard();
+            foreach(Object cardObject in cardObjects)
+            {
+                Destroy(cardObject);
+            }
+            ShowCard();
+            // UpdateHandが完了後相手のターンに変わる
+            Player.playerTurn = true;
         }
-        ShowCard();
-        // UpdateHandが完了後相手のターンに変わる
-        Player.playerTurn = true;
     }
 
     // 場に出ているCPカードを取得
@@ -322,7 +341,10 @@ public class CP : Player
     }
     public void Draw()
     {
-        Draw(GameMaster.number);
+        if(noDiscard != true)
+        {
+            Draw(GameMaster.number);
+        }
     }
 
     public override void AddPoint(int n)
@@ -331,6 +353,7 @@ public class CP : Player
     //   Console.WriteLine("{0}現在の失点 : {1}", Name, point);
     }
     public static bool cpTurn;
+    bool noDiscard;
 
     public override void Start()
     {
@@ -350,18 +373,24 @@ public class CP : Player
             case 1:
                 Invoke("DiscardCard", 2.0f);
                 Debug.Log("case1");
-                ThinkingTime(2);
+                // ThinkingTime(2);
+                turn = 2;
                 break;
             // カードを引く
             case 2:
                 Invoke("Draw", 2.5f);
-                ThinkingTime(3);
+                // ThinkingTime(3);
+                turn = 3;
                 break;
             // 手札の表示を更新する
             case 3:
                 Invoke("UpdateHand", 4.5f);
+                turn = 4;
+                break;
+            case 4:
+                Invoke("NoDiscard", 4.5f);
                 cpTurn = false;
-                ThinkingTime(1);
+                turn = 1;
                 break;
         }
 

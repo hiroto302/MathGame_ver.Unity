@@ -33,7 +33,7 @@ public class Player : MonoBehaviour
 
     // Filedクラスの変数
     GameObject fieldObject;
-    Field field;
+    protected Field field;
 
     // コンストラクタ
     public Player() : this("player")

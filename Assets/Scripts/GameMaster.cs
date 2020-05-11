@@ -45,19 +45,19 @@ public class GameMaster : MonoBehaviour
                 MakeNum(4, i, number);
                 break;
             case 6:
-                MakeNum(3, i, number);
+                // MakeNum(3, i, number);
                 break;
             case 7:
-                MakeNum(2, i, number);
+                // MakeNum(2, i, number);
                 break;
             case 8:
-                MakeNum(2, i, number);
+                // MakeNum(2, i, number);
                 break;
             case 9:
-                MakeNum(1, i, number);
+                // MakeNum(1, i, number);
                 break;
             case 10:
-                MakeNum(1, i, number);
+                // MakeNum(1, i, number);
                 break;
             // 計24枚
             }
@@ -164,17 +164,23 @@ public class GameMaster : MonoBehaviour
       if(player.Point < cp.Point)
       {
         // Console.WriteLine("{0}の勝ち!!!", player1.Name);
+        Debug.Log("Playerのかち");
       }
       else if(player.Point > cp.Point)
       {
         // Console.WriteLine("CPの勝ち!!!");
+        Debug.Log("CPの勝ち");
       }
       else if(player.Point == cp.Point)
       {
         // Console.WriteLine("引き分け....");
+        Debug.Log("引き分け");
       }
     //   Console.WriteLine("{0}の失点 : {1}", player.Name, player.Point);
+        Debug.Log("Playerの失点 " + player.Point);
     //   Console.WriteLine("CPの失点 : {0}", cp.Point);
+        Debug.Log("CPの失点 " + cp.Point);
+
     }
     // Unityに置いて下記のゲームを実行する処理をMonoBehaviourクラス継承しているクラスで実行する処理を記述する
     // 全て書き直した方が手取り早いかも
@@ -319,6 +325,8 @@ public class GameMaster : MonoBehaviour
         // プレイヤー・PCのカード表示
         playGame = true;
         nextTurn = 0;
+        player.ShowCard();
+        cp.ShowCard();
     }
     void Update()
     {
@@ -327,43 +335,48 @@ public class GameMaster : MonoBehaviour
             return;
         }
 
-        switch(nextTurn)
-        {
-            // 画面の初期表示
-            case 0:
-                player.ShowCard();
-                cp.ShowCard();
-                nextTurn = 1;
-                // playGame = false;
-                break;
-            // Playerのターン
-            case 1:
-                TurnName(player);
-                // player.playerTurn = true;
-                nextTurn = 2;
-                playGame = false;
-                break;
-            case 2:
-            // CPのターン
-                TurnName(cp);
-                // cp.cpTurn = true;
-                playGame = false;
-                break;
-            case 3:
-                // ゲームの終了判定 どちらかの手札が0枚になったら終了
+        // switch(nextTurn)
+        // {
+        //     // 画面の初期表示
+        //     case 0:
+        //         player.ShowCard();
+        //         cp.ShowCard();
+        //         nextTurn = 3;
+        //         // playGame = false;
+        //         break;
+        //     // Playerのターン
+        //     case 1:
+        //         TurnName(player);
+        //         // player.playerTurn = true;
+        //         nextTurn = 2;
+        //         playGame = false;
+        //         break;
+        //     case 2:
+        //     // CPのターン
+        //         TurnName(cp);
+        //         // cp.cpTurn = true;
+        //         playGame = false;
+        //         break;
+        //     case 3:
+                // // ゲームの終了判定 どちらかの手札が0枚になったら終了
                 if(player.card.Count == 0 || cp.card.Count == 0)
                 {
+                    Debug.Log("finish");
                     nextPlay = "finish";
+                    GameResult(player, cp);
+                    playGame = false;
+                    Player.playerTurn = false;
+                    CP.cpTurn = false;
                 }
-                // 条件分岐でどのplayerがプレーするか判断
-                if(nextPlay.Equals("player"))
-                {
-                    nextTurn = 1;
-                }
-                else if(nextPlay.Equals("cp"))
-                {
-                    nextTurn = 2;
-                }
+                // // 条件分岐でどのplayerがプレーするか判断
+                // if(nextPlay.Equals("player"))
+                // {
+                //     nextTurn = 1;
+                // }
+                // else if(nextPlay.Equals("cp"))
+                // {
+                //     nextTurn = 2;
+                // }
     //             else if(nextPlay.Equals("playerRestart")) // プレイヤーが場に出さないことを選択した時の処理
     //             {
     //                 if(fieldCard.Count > 0)
@@ -382,15 +395,16 @@ public class GameMaster : MonoBehaviour
     //                 FieldReset();
     //                 turn = 2; // 再び相手のターン
     //             }
-    //             else if(nextPlay.Equals("finish"))
-    //             {
-    //                 turn = 4;
-    //             }
-                break;
-            case 4:
-                FinishGame();
-                break;
-        }
+        //         if(nextPlay.Equals("finish"))
+        //         {
+        //             turn = 4;
+        //         }
+        //         break;
+        //     case 4:
+        //         FinishGame();
+        //         playGame = false;
+        //         break;
+        // }
         
         // cp.DiscardCard();
         // cp.Draw(number);
